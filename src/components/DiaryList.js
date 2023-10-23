@@ -1,4 +1,7 @@
 import { useState } from "react";
+import MyButton from './MyButton';
+import { useNavigate } from "react-router-dom";
+import DiaryItem from "./DiaryItem";
 
 const sortOptionList = [
     { value: "latest", name: "최신순" },
@@ -13,18 +16,27 @@ const filterOptionList = [
 
 const ControlMenu = ({ value, onChange, optionList }) => {
     return (
-        <select value={value} onChange={(e) => onChange(e.target.value)}>
+        <select className="ControlMenu" value={value} onChange={(e) => onChange(e.target.value)}>
             {optionList.map((it, idx) => <option key={idx} value={it.value}>{it.name}</option>)}
         </select>
     )
 }
 
 const DiaryList = ({ diaryList }) => {
+    const navigate = useNavigate();
     // 정렬 기준 state - 최신순, 오래된순
     const [sortType, setSortType] = useState('latest');
     const [filter, setFilter] = useState("all");
 
     const getProcessedDiaryList = () => {
+        const filterCallback = (item) => {
+            if (filter === 'good') {
+                return parseInt(item.emotion) <= 3;
+            } else {
+                return parseInt(item.emotion) > 3;
+            }
+        }
+
         // 비교 함수
         const compare = (a, b) => {
             if (sortType === 'latest') {
@@ -36,17 +48,24 @@ const DiaryList = ({ diaryList }) => {
         // 깊은 복사
         const copyList = JSON.parse(JSON.stringify(diaryList)); // 문자열로만든후 다시 배열로
 
+        const filteredList = filter === 'all' ? copyList : copyList.filter((it) => filterCallback(it));
 
-
-        const sortedList = copyList.sort(compare);
+        const sortedList = filteredList.sort(compare);
         return sortedList;
     };
 
     return (
         <div className="DiaryList">
-            <ControlMenu value={sortType} onChange={setSortType} optionList={sortOptionList} />
-            <ControlMenu value={filter} onChange={setFilter} optionList={filterOptionList} />
-            {getProcessedDiaryList().map((it) => <div key={it.id}>{it.content} {it.emotion}</div>)}
+            <div className="menu_wrapper">
+                <div className="left_col">
+                    <ControlMenu value={sortType} onChange={setSortType} optionList={sortOptionList} />
+                    <ControlMenu value={filter} onChange={setFilter} optionList={filterOptionList} />
+                </div>
+                <div className="right_col">
+                    <MyButton type={'positive'} text={'새 일기쓰기'} onClick={() => navigate('/new')} />
+                </div>
+            </div>
+            {getProcessedDiaryList().map((it) => (<DiaryItem key={it.id} {...it} />))}
         </div>
     )
 };

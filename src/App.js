@@ -13,7 +13,7 @@ const reducer = (state, action) => {
       return action.data;
     }
     case 'CREATE': {
-      newState = [...action.data, ...state];
+      newState = [action.data, ...state];
       break;
     }
     case 'REMOVE': {
@@ -75,13 +75,15 @@ function App() {
   // CREATE
   const onCreate = (date, content, emotion) => {
     dispatch({
-      type: "CREATE", data: {
+      type: "CREATE",
+      data: {
         id: dataId.current,
         date: new Date(date).getTime(),
         content,
         emotion,
       },
     });
+    dataId.current += 1;
   };
 
   // REMOVE
@@ -109,7 +111,7 @@ function App() {
             <Routes>
               <Route path='/' element={<Home />} />
               <Route path='/new' element={<New />} />
-              <Route path='/edit' element={<Edit />} />
+              <Route path='/edit/:id' element={<Edit />} />
               <Route path='/diary/:id' element={<Diary />} />
             </Routes>
           </div>
