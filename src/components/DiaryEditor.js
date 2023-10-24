@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import MyButton from "./MyButton";
@@ -19,10 +19,10 @@ const DiaryEditor = ({ isEdit, originData }) => {
     const [emotion, setEmotion] = useState(3);
     const [date, setDate] = useState(getStringdate(new Date()));
 
-    const { onCreate, onEdit } = useContext(DiaryDispatchContext);
-    const handelClickEmote = (emotion) => {
+    const { onCreate, onEdit, onRemove } = useContext(DiaryDispatchContext);
+    const handleClickEmote = useCallback((emotion) => {
         setEmotion(emotion);
-    };
+    }, []);
     const navigate = useNavigate();
 
     const handleSubmit = () => {
@@ -42,6 +42,13 @@ const DiaryEditor = ({ isEdit, originData }) => {
         navigate('/', { replace: true });
     };
 
+    const handleRemove = () => {
+        if (window.confirm('정말 삭제하시겠습니까?')) {
+            onRemove(originData.id);
+            navigate('/', { replace: true })
+        }
+    }
+
     // 이전에 입력했던 데이터 그대로 넣어줌.
     // edit 페이지에서 렌더하는 DiaryEditor에서만 이 로직이 동작
     useEffect(() => {
@@ -54,7 +61,7 @@ const DiaryEditor = ({ isEdit, originData }) => {
 
     return (
         <div className="DiaryEditor">
-            <MyHeader headText={isEdit ? "일기 수정하기" : "새 일기쓰기"} leftChild={<MyButton text={'< 뒤로가기'} onClick={() => navigate(-1)} />} />
+            <MyHeader headText={isEdit ? "일기 수정하기" : "새 일기쓰기"} leftChild={<MyButton text={'< 뒤로가기'} onClick={() => navigate(-1)} />} rightChild={<MyButton text={'삭제하기'} type={'negative'} onClick={handleRemove} />} />
             <div>
                 <section>
                     <h4>오늘은 언제인가요?</h4>
@@ -65,7 +72,7 @@ const DiaryEditor = ({ isEdit, originData }) => {
                 <section>
                     <h4>오늘의 감정</h4>
                     <div className="input_box emotion_list_wrapper">
-                        {emotionList.map((it) => (<EmotionItem key={it.emotion_id} {...it} onClick={handelClickEmote} isSelected={it.emotion_id === emotion} />))}
+                        {emotionList.map((it) => (<EmotionItem key={it.emotion_id} {...it} onClick={handleClickEmote} isSelected={it.emotion_id === emotion} />))}
                     </div>
                 </section>
                 <section>

@@ -11,6 +11,11 @@ const Edit = () => {
     const diaryList = useContext(DiaryStateContext);
 
     useEffect(() => {
+        const titleElement = document.getElementsByTagName('title')[0];
+        titleElement.innerHTML = `감정 일기장 - ${id}번 수정`; // 배열로 반환
+    }, [])
+
+    useEffect(() => {
         if (diaryList.length >= 1) {
             const targetDiary = diaryList.find((it) => parseInt(it.id) === parseInt(id));
             // 잘못된 번호
